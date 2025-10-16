@@ -23,10 +23,14 @@ dependencies {
     implementation("io.ktor:ktor-server-websockets")
     implementation("io.ktor:ktor-server-status-pages")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
+
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
-    implementation("com.h2database:h2:$h2_version")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:${exposed_version}")
+    implementation("org.jetbrains.exposed:exposed-json:${exposed_version}")
+    implementation("org.jetbrains.exposed:exposed-dao:${exposed_version}")
     implementation("io.ktor:ktor-server-netty")
+
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-config-yaml")
     testImplementation("io.ktor:ktor-server-test-host")

@@ -1,6 +1,7 @@
 package ru.fmsh
 
 import io.ktor.server.application.*
+import ru.fmsh.daatabase.configureDatabase
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -9,6 +10,6 @@ fun main(args: Array<String>) {
 fun Application.module() {
     configureSerialization()
     configureSockets()
-    configureDatabases()
+    configureDatabase()
     configureRouting()
 }
