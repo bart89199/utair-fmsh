@@ -37,6 +37,7 @@ object TaskService {
     }
 
     enum class OrderType {
+        ID,
         PLAN_DATE,
         JOURNAL_NUMBER
     }
@@ -69,6 +70,7 @@ object TaskService {
                         }
             }.apply { if (limit > 0) limit(limit) }.orderBy(
                 when (orderType) {
+                    OrderType.ID -> TaskTable.id
                     OrderType.PLAN_DATE -> TaskTable.planCompleteDate
                     OrderType.JOURNAL_NUMBER -> TaskTable.journalNumber
                 }, if (sortAsc) SortOrder.ASC_NULLS_LAST else SortOrder.DESC_NULLS_LAST

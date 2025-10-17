@@ -34,6 +34,7 @@ fun Application.configureRouting() {
                 }
                 val limit = call.queryParameters["limit"]?.toIntOrNull() ?: environment.config.property("task.default.limit").getAs<Int>()
                 val orderType = when(call.queryParameters["order_type"]) {
+                    "id" -> TaskService.OrderType.ID
                     "journal" -> TaskService.OrderType.JOURNAL_NUMBER
                     else -> TaskService.OrderType.PLAN_DATE
                 }
