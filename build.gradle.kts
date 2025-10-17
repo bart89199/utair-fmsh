@@ -1,6 +1,6 @@
 val exposed_version: String by project
-val h2_version: String by project
 val kotlin_version: String by project
+val postgres_version: String by project
 val logback_version: String by project
 
 plugins {
@@ -18,12 +18,13 @@ application {
 
 dependencies {
     implementation("io.ktor:ktor-server-core")
-    implementation("io.ktor:ktor-server-content-negotiation")
     implementation("io.ktor:ktor-server-host-common")
+    implementation("io.ktor:ktor-server-content-negotiation")
     implementation("io.ktor:ktor-server-websockets")
     implementation("io.ktor:ktor-server-status-pages")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
 
+    implementation("org.postgresql:postgresql:${postgres_version}")
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:${exposed_version}")

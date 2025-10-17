@@ -8,8 +8,11 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    configureDatabase()
     configureSerialization()
     configureSockets()
-    configureDatabase()
     configureRouting()
+//    transaction {
+//        SchemaUtils.create(TaskTable)
+//    }
 }
