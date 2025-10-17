@@ -28,9 +28,9 @@ object TaskService {
     private fun columEquals(column: Column<String>, value: String?): Op<Boolean> =
         if (value.isNullOrBlank()) Op.TRUE else column eq value
 
-    private fun columnsContains(columns: List<Column<Any>>, value: String?): Op<Boolean> =
-        if (value.isNullOrBlank()) Op.TRUE else columns.fold<Column<Any>, Op<Boolean>>(Op.TRUE) { base, column ->
-            base or (column.castTo(VarCharColumnType()) like value)
+    private fun columnsContains(columns: List<Column<*>>, value: String?): Op<Boolean> =
+        if (value.isNullOrBlank() || columns.isEmpty()) Op.TRUE else columns.fold<Column<*>, Op<Boolean>>(Op.FALSE) { base, column ->
+            base or (column.castTo(VarCharColumnType()) like "%$value%")
         }
 
     private fun now() = Clock.System.todayIn(TimeZone.currentSystemDefault())
@@ -61,7 +61,9 @@ object TaskService {
                         columEquals(TaskTable.status, status) and
                         (if (planCompleteDateStart == null) Op.TRUE else TaskTable.planCompleteDate greaterEq planCompleteDateStart) and
                         (if (planCompleteDateEnd == null) Op.TRUE else TaskTable.planCompleteDate lessEq planCompleteDateEnd) and
-                        columnsContains(listOf(), stringFind) and
+                        columnsContains(listOf(TaskTable.id, TaskTable.journalNumber, TaskTable.type, TaskTable.priority,
+                            TaskTable.nameType, TaskTable.count, TaskTable.status, TaskTable.comment, TaskTable.applicationDate,
+                            TaskTable.planCompleteDate), stringFind) and
                         when (planDateType) {
                             PlanDateType.FUTURE -> TaskTable.planCompleteDate greater now()
                             PlanDateType.OVERDUE -> TaskTable.planCompleteDate less now()
