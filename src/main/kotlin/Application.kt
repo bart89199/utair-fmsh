@@ -1,7 +1,10 @@
 package ru.fmsh
 
 import io.ktor.server.application.*
-import ru.fmsh.daatabase.configureDatabase
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.transactions.transaction
+import ru.fmsh.database.configureDatabase
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)

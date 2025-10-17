@@ -23,23 +23,31 @@ fun Application.configureRouting() {
             get("all") {
                 val priority = call.queryParameters["priority"]?.split(",")
                 val status = call.queryParameters["status"]?.split(",")
+                val type = call.queryParameters["type"]?.split(",")
                 val dateStart = call.queryParameters["date_start"]?.let { LocalDate.parse(it, LocalDate.Formats.ISO) }
                 val dateEnd = call.queryParameters["date_end"]?.let { LocalDate.parse(it, LocalDate.Formats.ISO) }
                 val find = call.queryParameters["find"]
-                val planDateType = when(call.queryParameters["plan_date_type"]?.lowercase()) {
+                val planDateType = when (call.queryParameters["plan_date_type"]?.lowercase()) {
                     "future" -> TaskService.PlanDateType.FUTURE
                     "today" -> TaskService.PlanDateType.TODAY
                     "overdue" -> TaskService.PlanDateType.OVERDUE
                     else -> TaskService.PlanDateType.ALL
                 }
-                val limit = call.queryParameters["limit"]?.toIntOrNull() ?: environment.config.property("task.default.limit").getAs<Int>()
-                val orderType = when(call.queryParameters["order_type"]) {
-                    "id" -> TaskService.OrderType.ID
-                    "journal" -> TaskService.OrderType.JOURNAL_NUMBER
-                    else -> TaskService.OrderType.PLAN_DATE
-                }
+                val limit =
+                    call.queryParameters["limit"]?.toIntOrNull() ?: environment.config.property("task.default.limit")
+                        .getAs<Int>()
                 val sortAsc = call.queryParameters["sort_asc"]?.lowercase() == "true"
-                val res = TaskService.get(limit, priority, status, dateStart, dateEnd, find, planDateType, orderType, sortAsc).toDisplayTasks()
+                val res = TaskService.get(
+                    limit,
+                    priority,
+                    status,
+                    type,
+                    dateStart,
+                    dateEnd,
+                    find,
+                    planDateType,
+                    sortAsc
+                ).toDisplayTasks()
                 call.respond(res)
             }
             get {

@@ -1,4 +1,4 @@
-package ru.fmsh.daatabase
+package ru.fmsh.database
 
 import io.ktor.server.application.Application
 import kotlinx.coroutines.Dispatchers
