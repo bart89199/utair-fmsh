@@ -25,9 +25,6 @@ object TaskService {
         TaskTable.select(TaskTable.columns).where { TaskTable.id eq extNumber }.toModel().firstOrNull()
     }
 
-    private fun columEquals(column: Column<String>, value: String?): Op<Boolean> =
-        if (value.isNullOrBlank()) Op.TRUE else column eq value
-
     private fun columnsContains(columns: List<Column<*>>, value: String?): Op<Boolean> =
         if (value.isNullOrBlank() || columns.isEmpty()) Op.TRUE else columns.fold<Column<*>, Op<Boolean>>(Op.FALSE) { base, column ->
             base or (column.castTo(VarCharColumnType()) like "%$value%")
@@ -46,8 +43,8 @@ object TaskService {
 
     suspend fun get(
         limit: Int = -1,
-        priority: String? = null,
-        status: String? = null,
+        priority: List<String>? = null,
+        status: List<String>? = null,
         planCompleteDateStart: LocalDate? = null,
         planCompleteDateEnd: LocalDate? = null,
         stringFind: String? = null,
@@ -57,8 +54,8 @@ object TaskService {
         ) = suspendTransaction {
         TaskTable.select(TaskTable.columns)
             .where {
-                columEquals(TaskTable.priority, priority) and
-                        columEquals(TaskTable.status, status) and
+                if (priority.isNullOrEmpty()) Op.TRUE else TaskTable.priority inList priority and
+                        if (status.isNullOrEmpty()) Op.TRUE else TaskTable.status inList status and
                         (if (planCompleteDateStart == null) Op.TRUE else TaskTable.planCompleteDate greaterEq planCompleteDateStart) and
                         (if (planCompleteDateEnd == null) Op.TRUE else TaskTable.planCompleteDate lessEq planCompleteDateEnd) and
                         columnsContains(listOf(TaskTable.id, TaskTable.journalNumber, TaskTable.type, TaskTable.priority,

@@ -21,8 +21,8 @@ fun Application.configureRouting() {
     routing {
         route("api/task") {
             get("all") {
-                val priority = call.queryParameters["priority"]
-                val status = call.queryParameters["status"]
+                val priority = call.queryParameters["priority"]?.split(",")
+                val status = call.queryParameters["status"]?.split(",")
                 val dateStart = call.queryParameters["date_start"]?.let { LocalDate.parse(it, LocalDate.Formats.ISO) }
                 val dateEnd = call.queryParameters["date_end"]?.let { LocalDate.parse(it, LocalDate.Formats.ISO) }
                 val find = call.queryParameters["find"]
