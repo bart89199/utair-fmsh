@@ -99,11 +99,12 @@ data class DisplayTask(
     @SerialName("count") val count: String?,
     @SerialName("status") val status: String,
     @SerialName("comment") val comment: String?,
+    @SerialName("application_date") val applicationDate: LocalDateTime,
     @SerialName("plan_complete_date") val planCompleteDate: LocalDate?,
 )
 
 fun Task.toDisplayTask() =
-    DisplayTask(extNumber, journalNumber, type, priority, nameType, count, status, comment, planCompleteDate)
+    DisplayTask(extNumber, journalNumber, type, priority, nameType, count, status, comment, applicationDate, planCompleteDate)
 
 fun Iterable<Task>.toDisplayTasks() = map { it.toDisplayTask() }
 
