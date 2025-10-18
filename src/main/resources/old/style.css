@@ -1,0 +1,273 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'PT Mono', monospace;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+/* Панель управления */
+.controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px 16px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.control-title {
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+}
+.control-group label {
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.control-group .inline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;                 /* разрешаем перенос внутри блока дат */
+}
+.control-group .inline label {
+    white-space: nowrap;             /* "с"/"по" не отрываются от инпута */
+}
+.control-group .inline input[type="date"] {
+    width: 160px;                    /* контролируемая ширина, чтобы не налезало */
+    max-width: 100%;
+}
+.control-group.actions {
+    align-self: end;
+}
+
+/* Поисковая строка — на всю ширину сетки, чтобы не сталкиваться с датами */
+.control-search {
+    grid-column: 1 / -1;
+}
+.control-search input {
+    width: 100%;
+}
+
+.btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #888;
+    background: #f3f3f3;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-primary {
+    background: #0b5fff;
+    border-color: #0b5fff;
+    color: #fff;
+}
+.btn:hover { filter: brightness(0.95); }
+
+/* Контейнер карточек */
+.cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Карточка */
+.request-card {
+    width: 100%;
+    max-width: 413px;          /* 1.5x шире */
+    height: 300px;             /* фиксированная высота */
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #090000;
+    padding: 10px;
+    display: flex;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+/* ДВА СТОЛБЦА: равномерное распределение и центрирование содержимого */
+.left-section,
+.right-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly; /* РАВНОМЕРНО по вертикали */
+    align-items: center;           /* центр по горизонтали внутри столбца */
+    min-height: 0;
+    gap: 0;                        /* используем равномерное распределение, gap не нужен */
+}
+
+.left-section { flex: 30%; padding-right: 5px; }
+.right-section { flex: 70%; padding-left: 5px; }
+
+.vertical-divider {
+    width: 1px;
+    background-color: #000;
+    margin: 0 5px;
+}
+
+.divider {
+    height: 1px;
+    background-color: #000;
+    margin: 3px 0;
+    align-self: stretch;           /* линия на всю ширину столбца */
+}
+
+/* Группа поля заполняет ширину столбца, контент по центру */
+.field-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;           /* центрируем содержимое каждой группы */
+    justify-content: center;
+    margin: 0;                     /* убираем внешние отступы, т.к. используем равномерное распределение */
+}
+
+/* Блоки, которые раньше растягивались — больше НЕ растягиваем,
+   чтобы равномерное распределение работало корректно */
+.field-group.full-height,
+.field-group.scrollable {
+    flex: 0 0 auto;
+    min-height: 0;
+}
+
+.field-label {
+    color: #9C9C9C;
+    font-size: 10px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.field-value {
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    min-height: 25px;
+    width: 100%;
+}
+
+.badge {
+    padding: 5px 5px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 15px;
+    width: 100%;
+}
+
+/* Цвета бейджей */
+.badge-none { background-color: rgba(255, 255, 255, 0); color: #000000; }
+.badge-green { background-color: rgba(46, 244, 36, 0.4); color: #000000; }
+.badge-red { background-color: rgba(255, 51, 51, 0.4); color: #000000; }
+.badge-blue { background-color: rgba(108, 152, 245, 0.4); color: #000000; }
+.badge-orange { background-color: rgba(255, 165, 0, 0.45); color: #000000; }
+
+/* Совместимость с исходными классами */
+.badge-normal { background-color: rgba(46, 244, 36, 0.4); color: #000000; }
+.badge-new    { background-color: rgba(108, 152, 245, 0.4); color: #000000; }
+.badge-emergency { background-color: rgba(255, 51, 51, 0.4); color: #000000; }
+
+/* Описание и комментарий — автоперенос + внутренняя прокрутка при переполнении */
+.description-label {
+    color: #9C9C9C;
+    font-size: 10px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.description-text,
+.comment-text {
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    white-space: pre-line;
+    overflow: auto;
+    max-height: 120px;             /* ограничиваем, чтобы статус не уезжал */
+    width: 100%;
+
+    /* Автоперенос длинных слов/URL */
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* Сообщения об ошибках/пустом списке */
+.info {
+    color: #666;
+    font-size: 14px;
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+    padding: 16px;
+}
+
+/* Модальное окно */
+.modal.hidden { display: none; }
+.modal { position: fixed; inset: 0; z-index: 1000; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
+.modal-dialog {
+    position: relative;
+    margin: 40px auto;
+    background: #fff;
+    max-width: 900px;
+    width: calc(100% - 40px);
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    padding: 16px 16px 20px 16px;
+}
+.modal-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border: none;
+    background: #eee;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+}
+.modal-body { margin-top: 8px; max-height: 70vh; overflow: auto; }
+
+/* Сетка деталей */
+.details-grid {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 8px 12px;
+    align-items: start;
+}
+.details-label { font-size: 12px; color: #666; font-weight: 600; }
+.details-value { font-size: 14px; white-space: pre-wrap; word-break: break-word; }
+.details-value a { color: #0b5fff; text-decoration: none; }
+.details-value a:hover { text-decoration: underline; }
+
+/* Малые экраны: страхуемся, чтобы ничего не налезало */
+@media (max-width: 640px) {
+    .controls {
+        grid-template-columns: 1fr; /* всё в одну колонку */
+    }
+    .control-group .inline input[type="date"] {
+        width: 100%;  /* даты встают столбиком */
+    }
+}
+

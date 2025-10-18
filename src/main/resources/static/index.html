@@ -7,7 +7,29 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<form id="controls" class="controls">
+<!-- Кнопка для открытия/закрытия фильтров -->
+<div class="filters-container">
+    <button id="toggle-filters" class="toggle-filters-btn">☰ Фильтры</button>
+    <!--Тип работы и статус-->
+    <div class="request-card small">
+        <div class="field-group">
+            <div class="field-value">
+                <div class="badge badge-none">Ремонт</div>
+            </div>
+        </div>
+
+        <div class="vertical-divider"></div>
+
+        <div class="field-group">
+            <div class="field-value">
+                <div class="badge badge-none">В обработке</div>
+            </div>
+        </div>
+    </div>
+    <!---->
+</div>
+
+<form id="controls" class="controls hidden">
     <div class="control-group">
         <label class="control-title">Приоритет</label>
         <label><input type="checkbox" name="priority" value="Высокий" checked> Высокий</label>
@@ -17,30 +39,26 @@
 
     <div class="control-group">
         <label class="control-title">Статус</label>
-        <label><input type="checkbox" name="status" value="В обработке"> В обработке</label>
-        <label><input type="checkbox" name="status" value="В работе" checked> В работе</label>
-        <label><input type="checkbox" name="status" value="Закрыта"> Закрыта</label>
-        <label><input type="checkbox" name="status" value="Отмена"> Отмена</label>
+        <label><input type="radio" name="status_type" value="in-processing" checked> В обработке</label>
+        <label><input type="radio" name="status_type" value="in-progress"> В работе</label>
+        <label><input type="radio" name="status_type" value="closed"> Закрыта</label>
+        <label><input type="radio" name="status_type" value="canceled"> Отмена</label>
     </div>
 
     <div class="control-group">
         <label class="control-title">План выполнения</label>
-        <label><input type="radio" name="plan_date_type" value="today" checked> Сегодня</label>
+        <label><input type="radio" name="plan_date_type" value="today"> Сегодня</label>
         <label><input type="radio" name="plan_date_type" value="future"> Завтра или позже</label>
         <label><input type="radio" name="plan_date_type" value="overdue"> Просроченные</label>
+        <label><input type="radio" name="plan_date_type" value="all" checked> Все</label>
     </div>
 
-    <div class="control-group control-dates">
+    <div class="control-group">
         <label class="control-title">Дата выполнения</label>
         <div class="inline">
             <label>с <input type="date" id="date_start"></label>
             <label>по <input type="date" id="date_end"></label>
         </div>
-    </div>
-
-    <div class="control-group control-search">
-        <label class="control-title">Поиск</label>
-        <input type="text" id="find" placeholder="Поиск по всем столбцам">
     </div>
 
     <div class="control-group">
@@ -56,16 +74,13 @@
     </div>
 
     <div class="control-group">
-        <label class="control-title">Сортировка по</label>
-        <select id="order_type">
-            <option value="date" selected>по дате выполнения</option>
-            <option value="journal">по номеру в журнале</option>
-            <option value="id">по id</option>
-        </select>
+        <label class="control-title">Тип работ</label>
+        <label><input type="radio" name="work_type" value="repair" checked> Ремонт</label>
+        <label><input type="radio" name="work_type" value="production"> Производство</label>
     </div>
 
     <div class="control-group">
-        <label class="control-title">Тип сортировки</label>
+        <label class="control-title">Сортировать дату</label>
         <label><input type="radio" name="sort_asc" value="false" checked> по убыванию</label>
         <label><input type="radio" name="sort_asc" value="true"> по возрастанию</label>
     </div>
@@ -74,8 +89,6 @@
         <button id="apply" type="submit" class="btn btn-primary">Поиск</button>
     </div>
 </form>
-
-<div id="cards" class="cards">Загрузка...</div>
 
 <!-- Модальное окно деталей заявки -->
 <div id="modal" class="modal hidden" aria-hidden="true">
@@ -89,6 +102,137 @@
     </div>
 </div>
 
-<script src="app.js" defer></script>
+<!--ОПИСАНИЕ ПОЛЕЙ В ЗАЯВКАХ-->
+<div class="request-card">
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-none">Номер заявки</div>
+        </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group full-lenght">
+        <div class="description-text">Описание</div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-none">Локация</div>
+        </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-none">ФИО Заявителя</div>
+        </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-none">План. дата выполнения</div>
+        </div>
+    </div>
+</div>
+
+<!--ЗАЯВКА ЕЩКЕРЕ-->
+<div class="request-card">
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-new-normal">1337</div>
+        </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group full-lenght">
+        <div class="description-text">Изготовление: заготовок, сварные работы, ограждение, покраска</div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-none">АРК</div>
+        </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-none">Мыцик Александр Борисович</div>
+        </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-none">24.01.2026</div>
+        </div>
+    </div>
+</div>
+
+<div class="request-card">
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-new-emergency">228</div>
+        </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group full-lenght">
+        <div class="description-text">поднять 15000 кубков в бравл старсе</div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-none">3 цех</div>
+        </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-none">bitmaker dima iz krasnodara</div>
+        </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="field-group">
+        <div class="field-value">
+            <div class="badge badge-red">30.02.2024</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('toggle-filters').addEventListener('click', function() {
+        const controls = document.getElementById('controls');
+        const body = document.body;
+
+        controls.classList.toggle('hidden');
+        body.classList.toggle('controls-open');
+
+        // Меняем текст кнопки
+        if (controls.classList.contains('hidden')) {
+            this.textContent = '☰ Фильтры';
+        } else {
+            this.textContent = '✕ Скрыть фильтры';
+        }
+    });
+</script>
 </body>
 </html>

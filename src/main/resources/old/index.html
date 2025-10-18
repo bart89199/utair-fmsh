@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заявки</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<form id="controls" class="controls">
+    <div class="control-group">
+        <label class="control-title">Приоритет</label>
+        <label><input type="checkbox" name="priority" value="Высокий" checked> Высокий</label>
+        <label><input type="checkbox" name="priority" value="Нормальный" checked> Нормальный</label>
+        <label><input type="checkbox" name="priority" value="Низкий" checked> Низкий</label>
+    </div>
+
+    <div class="control-group">
+        <label class="control-title">Статус</label>
+        <label><input type="checkbox" name="status" value="В обработке"> В обработке</label>
+        <label><input type="checkbox" name="status" value="В работе" checked> В работе</label>
+        <label><input type="checkbox" name="status" value="Закрыта"> Закрыта</label>
+        <label><input type="checkbox" name="status" value="Отмена"> Отмена</label>
+    </div>
+
+    <div class="control-group">
+        <label class="control-title">План выполнения</label>
+        <label><input type="radio" name="plan_date_type" value="today" checked> Сегодня</label>
+        <label><input type="radio" name="plan_date_type" value="future"> Завтра или позже</label>
+        <label><input type="radio" name="plan_date_type" value="overdue"> Просроченные</label>
+    </div>
+
+    <div class="control-group control-dates">
+        <label class="control-title">Дата выполнения</label>
+        <div class="inline">
+            <label>с <input type="date" id="date_start"></label>
+            <label>по <input type="date" id="date_end"></label>
+        </div>
+    </div>
+
+    <div class="control-group control-search">
+        <label class="control-title">Поиск</label>
+        <input type="text" id="find" placeholder="Поиск по всем столбцам">
+    </div>
+
+    <div class="control-group">
+        <label class="control-title">Лимит</label>
+        <select id="limit">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100" selected>100</option>
+            <option value="200">200</option>
+            <option value="-1">все</option>
+        </select>
+    </div>
+
+    <div class="control-group">
+        <label class="control-title">Сортировка по</label>
+        <select id="order_type">
+            <option value="date" selected>по дате выполнения</option>
+            <option value="journal">по номеру в журнале</option>
+            <option value="id">по id</option>
+        </select>
+    </div>
+
+    <div class="control-group">
+        <label class="control-title">Тип сортировки</label>
+        <label><input type="radio" name="sort_asc" value="false" checked> по убыванию</label>
+        <label><input type="radio" name="sort_asc" value="true"> по возрастанию</label>
+    </div>
+
+    <div class="control-group actions">
+        <button id="apply" type="submit" class="btn btn-primary">Поиск</button>
+    </div>
+</form>
+
+<div id="cards" class="cards">Загрузка...</div>
+
+<!-- Модальное окно деталей заявки -->
+<div id="modal" class="modal hidden" aria-hidden="true">
+    <div id="modal-backdrop" class="modal-backdrop"></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button id="modal-close" class="modal-close" aria-label="Закрыть">×</button>
+        <h2 id="modal-title">Заявка <span id="modal-title-ext"></span></h2>
+        <div id="modal-body" class="modal-body">
+            <div class="info">Загрузка...</div>
+        </div>
+    </div>
+</div>
+
+<script src="app.js" defer></script>
+</body>
+</html>

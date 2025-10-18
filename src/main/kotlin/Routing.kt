@@ -62,6 +62,6 @@ fun Application.configureRouting() {
                 }
             }
         }
-        staticResources("/", "static")
+        staticResources("/", "old")
     }
 }
