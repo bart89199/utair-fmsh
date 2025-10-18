@@ -26,7 +26,6 @@ fun Application.configureRouting() {
                 val type = call.queryParameters["type"]?.split(",")
                 val dateStart = call.queryParameters["date_start"]?.let { LocalDate.parse(it, LocalDate.Formats.ISO) }
                 val dateEnd = call.queryParameters["date_end"]?.let { LocalDate.parse(it, LocalDate.Formats.ISO) }
-                val find = call.queryParameters["find"]
                 val planDateType = when (call.queryParameters["plan_date_type"]?.lowercase()) {
                     "future" -> TaskService.PlanDateType.FUTURE
                     "today" -> TaskService.PlanDateType.TODAY
@@ -44,7 +43,6 @@ fun Application.configureRouting() {
                     type,
                     dateStart,
                     dateEnd,
-                    find,
                     planDateType,
                     sortAsc
                 ).toDisplayTasks()
