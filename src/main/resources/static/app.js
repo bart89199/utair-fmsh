@@ -113,6 +113,7 @@ function buildQuery(filters) {
     return `/api/task/all?${params.toString()}`;
 }
 
+
 function setTopBadges(filters) {
     if (typeBadgeEl) typeBadgeEl.textContent = filters.type || 'Все типы';
     if (statusBadgeEl) statusBadgeEl.textContent = filters.status || 'Все статусы';
@@ -136,11 +137,29 @@ function formatDateTimeToRu(dt) {
     return `${ruDate} ${String(hh ?? '').padStart(2, '0')}:${String(mm ?? '').padStart(2, '0')}`;
 }
 
+function date_to_int(dt) {
+    let [dd, mm, yy] = dt.split('.').map(Number);
+    return dd + mm * 40 + yy * 40 * 12;
+}
+
+function today_date() {
+    const dt = new Date().toLocaleDateString('ru-RU');
+    return date_to_int(dt);
+}
+
 function escapeHtml(str) {
     return String(str ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
+}
+
+function cut_text(str, max_len) {
+    if (str.length <= max_len) {
+        return str;
+    } else {
+        return str.substring(0, max_len) + '...';
+    }
 }
 
 // Создание DOM узла карточки заявки
@@ -168,9 +187,10 @@ function createRequestCard(task, isUrgent = false) {
     // Номер заявки (левый столбец)
     const colNumber = document.createElement('div');
     colNumber.className = 'field-group left-col';
+    let number = cut_text(escapeHtml(numberJournal), 12);
     colNumber.innerHTML = `
     <div class="field-value">
-      <div class="badge badge-none">${escapeHtml(numberJournal)}</div>
+      <div class="badge badge-none">${number}</div>
     </div>
   `;
     card.appendChild(colNumber);
@@ -180,8 +200,11 @@ function createRequestCard(task, isUrgent = false) {
 
     // Описание (2 строки, обрезка)
     const colDesc = document.createElement('div');
-    colDesc.className = 'field-group full-lenght';
-    colDesc.innerHTML = `<div class="description-text">${escapeHtml(description)}</div>`;
+    colDesc.className = 'field-group full-length';
+    let desc = cut_text(escapeHtml(description), 300);
+    colDesc.innerHTML = `<div class="field-value">
+      <div class="badge badge-none">${desc}</div>
+    </div>`;
     card.appendChild(colDesc);
 
     card.appendChild(createDivider());
@@ -189,9 +212,10 @@ function createRequestCard(task, isUrgent = false) {
     // Локация
     const colLoc = document.createElement('div');
     colLoc.className = 'field-group';
+    let locat = cut_text(escapeHtml(location), 30);
     colLoc.innerHTML = `
     <div class="field-value">
-      <div class="badge badge-none">${escapeHtml(location)}</div>
+      <div class="badge badge-none">${locat}</div>
     </div>
   `;
     card.appendChild(colLoc);
@@ -212,10 +236,11 @@ function createRequestCard(task, isUrgent = false) {
 
     // План. дата выполнения
     const colPlan = document.createElement('div');
+    let is_expired = (today_date() > date_to_int(planDate));
     colPlan.className = 'field-group';
     colPlan.innerHTML = `
     <div class="field-value">
-      <div class="badge ${isUrgent ? 'badge-urgent' : 'badge-none'}">${escapeHtml(planDate)}</div>
+      <div class="badge badge-${is_expired ? "red" : "none"}">${escapeHtml(planDate)}</div>
     </div>
   `;
     card.appendChild(colPlan);
@@ -271,13 +296,36 @@ async function loadTasks() {
 
     const url = buildQuery(filters);
     try {
-        const res = await fetch(url, { method: 'GET' });
+        const res = await fetch(url, {method: 'GET'});
         if (!res.ok) {
             const text = await res.text();
             throw new Error(text || `Ошибка запроса: ${res.status}`);
         }
         const data = await res.json();
-        renderTasks(data);
+
+        // Новые запросы
+        const url1 = buildQuery({
+            priority: ["Высокий"],
+            status: "В обработке",
+            type: "Ремонт",
+            date_start: null,
+            date_end: null,
+            plan_date_type: "all",
+            limit: '100',
+            sort_asc: "false"
+        })
+        let all_data = [...data];
+        if (filters.status === 'В работе') {
+            const res1 = await fetch(url1, {method: 'GET'});
+            if (!res1.ok) {
+                const text1 = await res1.text();
+                throw new Error(text1 || `Ошибка запроса: ${res1.status}`);
+            }
+            const data1 = await res1.json();
+            all_data = [...data, ...data1];
+        }
+        //
+        renderTasks(all_data);
     } catch (e) {
         console.error(e);
         requestsContainer.innerHTML = `<div class="error">Не удалось загрузить заявки: ${escapeHtml(e.message)}</div>`;
@@ -360,12 +408,7 @@ function renderModalDetails(task) {
         }
 
         // фото как ссылку
-        if (key.startsWith('photo_') && typeof val === 'string') {
-            const url = escapeHtml(val);
-            val = `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-        } else {
-            val = escapeHtml(val);
-        }
+        val = escapeHtml(val);
 
         rows.push(`<div class="detail-row"><div class="detail-key">${escapeHtml(label)}</div><div class="detail-value">${val}</div></div>`);
         seen.add(key);
@@ -383,6 +426,7 @@ function openModal() {
     modal.classList.remove('hidden');
     modal.setAttribute('aria-hidden', 'false');
 }
+
 function closeModal() {
     modal.classList.add('hidden');
     modal.setAttribute('aria-hidden', 'true');

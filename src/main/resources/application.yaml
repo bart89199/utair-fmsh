@@ -7,7 +7,7 @@ ktor:
 postgres:
   url: "jdbc:postgresql://localhost:5432/utair-test"
   user: postgres
-  password: $DB_PASSWORD
+  password: 123
 task:
   default:
     limit: 100

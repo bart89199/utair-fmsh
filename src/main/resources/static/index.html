@@ -39,8 +39,8 @@
 
     <div class="control-group">
         <label class="control-title">Статус</label>
-        <label><input type="radio" name="status_type" value="in-processing" checked> В обработке</label>
-        <label><input type="radio" name="status_type" value="in-progress"> В работе</label>
+        <label><input type="radio" name="status_type" value="in-processing"> В обработке</label>
+        <label><input type="radio" name="status_type" value="in-progress" checked> В работе</label>
         <label><input type="radio" name="status_type" value="closed"> Закрыта</label>
         <label><input type="radio" name="status_type" value="canceled"> Отмена</label>
     </div>
@@ -55,9 +55,15 @@
 
     <div class="control-group">
         <label class="control-title">Дата выполнения</label>
-        <div class="inline">
-            <label>с <input type="date" id="date_start"></label>
-            <label>по <input type="date" id="date_end"></label>
+        <div class="date-inputs-vertical">
+            <label class="date-label">
+                <span>с</span>
+                <input type="date" id="date_start">
+            </label>
+            <label class="date-label">
+                <span>по</span>
+                <input type="date" id="date_end">
+            </label>
         </div>
     </div>
 
@@ -81,8 +87,8 @@
 
     <div class="control-group">
         <label class="control-title">Сортировать дату</label>
-        <label><input type="radio" name="sort_asc" value="false" checked> по убыванию</label>
-        <label><input type="radio" name="sort_asc" value="true"> по возрастанию</label>
+        <label><input type="radio" name="sort_asc" value="false"> по убыванию</label>
+        <label><input type="radio" name="sort_asc" value="true" checked> по возрастанию</label>
     </div>
 
     <div class="control-group actions">
@@ -104,7 +110,7 @@
 
 <!--ОПИСАНИЕ ПОЛЕЙ В ЗАЯВКАХ-->
 <div class="request-card">
-    <div class="field-group">
+    <div class="field-group left-col">
         <div class="field-value">
             <div class="badge badge-none">Номер заявки</div>
         </div>
@@ -112,8 +118,10 @@
 
     <div class="vertical-divider"></div>
 
-    <div class="field-group full-lenght">
-        <div class="description-text">Описание</div>
+    <div class="field-group full-length-kek">
+        <div class="field-value">
+            <div class="badge badge-none">Описание</div>
+        </div>
     </div>
 
     <div class="vertical-divider"></div>
