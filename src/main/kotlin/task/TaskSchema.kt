@@ -21,51 +21,50 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 //    CLOSED("Закрыта"), IN_PROGRESS("В работе"), IN_PRECESSING("В обработке"), CANCELED("Отмена")
 //}
 
-object TaskTable : IntIdTable("tasks", "ext_number") {
-    val journalNumber = varchar("number_journal", 1000).nullable()
-    val type = varchar("type", 300)
+object TaskTable : IntIdTable("tasks") {
+    val journalNumber = varchar("number_journal", 1000)
+    val type = varchar("type", 100)
     val priority = varchar("priority", 300)
-    val nameType = varchar("name_type", 5000)
-    val locationRepair = varchar("lokation_repair", 300).nullable()
-    val count = varchar("count", 200).nullable()
-    val drawingNumber = varchar("drawing_number", 500).nullable()
-    val pageCount = varchar("page_count", 200).nullable()
-    val fullName = varchar("full_name", 400)
-    val division = varchar("division", 200).nullable()
-    val tgId = varchar("tg_id", 30).nullable()
-    val userCode = varchar("code_users", 300).nullable()
-    val email = varchar("email", 300).nullable()
-    val phone = varchar("phone", 300).nullable()
-    val status = varchar("status", 300)
-    val comment = varchar("comment", 2000).nullable()
+    val message = varchar("message", 10000)
+    val locationRepair = varchar("location_repair", 5000).nullable()
+    val count = varchar("count", 1000).nullable()
+    val drawingNumber = varchar("drawing_number", 1000).nullable()
+    val pageCount = varchar("page_count", 1000).nullable()
+    val fullName = varchar("full_name", 1000)
+    val division = varchar("division", 1000).nullable()
+    val tgId = varchar("tg_id", 500).nullable()
+    val userCode = varchar("code_users", 500).nullable()
+    val email = varchar("email", 500).nullable()
+    val phone = varchar("phone", 500).nullable()
+    val status = varchar("status", 100)
+    val comment = varchar("comment", 10000).nullable()
     val applicationDate = datetime("application_date")
-    val commentReady = varchar("comment_ready", 1000).nullable()
+    val commentReady = varchar("comment_ready", 10000).nullable()
     val dateReady = datetime("date_ready").nullable()
-    val commentsClosing = varchar("comments_closing", 1000).nullable()
+    val commentsClosing = varchar("comments_closing", 10000).nullable()
     val closingDate = datetime("closing_date").nullable()
     val photo1 = varchar("photo_1", 2000).nullable()
     val photo2 = varchar("photo_2", 2000).nullable()
     val photo3 = varchar("photo_3", 2000).nullable()
     val commentShift = varchar("comment_shift", 2000).nullable()
-    val planCompleteDate = date("plan_complet_date").nullable()
-    val categoryChange = varchar("category_change", 200).nullable()
+    val planCompleteDate = date("plan_complete_date").nullable()
+    val categoryChange = varchar("category_change", 2000).nullable()
     val amosOrderNumber = varchar("amos_order_number", 2000).nullable()
     val departmentOgm = varchar("department_ogm", 5000).nullable()
-    val innerId = varchar("id", 300)
 }
 
 @Serializable
 data class Task(
-    @SerialName("ext_number") val extNumber: Int,
-    @SerialName("number_journal") val journalNumber: String?,
+    @SerialName("id") val id: Int,
+    @SerialName("number_journal") val journalNumber: String,
     @SerialName("type") val type: String,
     @SerialName("priority") val priority: String,
-    @SerialName("name_type") val nameType: String?,
+    @SerialName("message") val message: String,
     @SerialName("location_repair") val locationRepair: String?,
     @SerialName("count") val count: String?,
     @SerialName("drawing_number") val drawingNumber: String?,
     @SerialName("page_count") val pageCount: String?,
-    @SerialName("full_name") val fullName: String?,
+    @SerialName("full_name") val fullName: String,
     @SerialName("division") val division: String?,
     @SerialName("tg_id") val tgId: String?,
     @SerialName("code_users") val userCode: String?,
@@ -86,18 +85,16 @@ data class Task(
     @SerialName("category_change") val categoryChange: String?,
     @SerialName("amos_order_number") val amosOrderNumber: String?,
     @SerialName("department_ogm") val departmentOgm: String?,
-    @SerialName("id") val id: String
 )
 
 @Serializable
 data class DisplayTask(
-    @SerialName("ext_number") val extNumber: Int,
+    @SerialName("id") val id: Int,
     @SerialName("number_journal") val journalNumber: String?,
     @SerialName("type") val type: String,
     @SerialName("priority") val priority: String,
-    @SerialName("name_type") val nameType: String?,
+    @SerialName("message") val message: String?,
     @SerialName("location_repair") val locationRepair: String?,
-    @SerialName("count") val count: String?,
     @SerialName("full_name") val fullName: String?,
     @SerialName("status") val status: String,
     @SerialName("comment") val comment: String?,
@@ -105,13 +102,12 @@ data class DisplayTask(
 )
 
 fun Task.toDisplayTask() = DisplayTask(
-    extNumber,
+    id,
     journalNumber,
     type,
     priority,
-    nameType,
+    message,
     locationRepair,
-    count,
     fullName,
     status,
     comment,
@@ -126,7 +122,7 @@ fun Query.toModel(): List<Task> = map {
         it[TaskTable.journalNumber],
         it[TaskTable.type],
         it[TaskTable.priority],
-        it[TaskTable.nameType],
+        it[TaskTable.message],
         it[TaskTable.locationRepair],
         it[TaskTable.count],
         it[TaskTable.drawingNumber],
@@ -152,7 +148,6 @@ fun Query.toModel(): List<Task> = map {
         it[TaskTable.categoryChange],
         it[TaskTable.amosOrderNumber],
         it[TaskTable.departmentOgm],
-        it[TaskTable.innerId]
     )
 }
 

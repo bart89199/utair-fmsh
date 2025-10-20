@@ -11,18 +11,18 @@
 <div class="filters-container">
     <button id="toggle-filters" class="toggle-filters-btn">☰ Фильтры</button>
     <!--Тип работы и статус-->
-    <div class="request-card small">
+    <div class="request-card">
         <div class="field-group">
-            <div class="field-value">
-                <div id="type-badge" class="badge badge-none">Ремонт</div>
+            <div class="filter-chosen">
+                <div id="type-badge" class="filter-chosen">Ремонт</div>
             </div>
         </div>
 
         <div class="vertical-divider"></div>
 
         <div class="field-group">
-            <div class="field-value">
-                <div id="status-badge" class="badge badge-none">В обработке</div>
+            <div class="filter-chosen">
+                <div id="status-badge" class="filter-chosen">В обработке</div>
             </div>
         </div>
     </div>
@@ -101,7 +101,7 @@
     <div id="modal-backdrop" class="modal-backdrop"></div>
     <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <button id="modal-close" class="modal-close" aria-label="Закрыть">×</button>
-        <h2 id="modal-title">Заявка <span id="modal-title-ext"></span></h2>
+        <h2 id="modal-title">Заявка <span id="modal-title-id"></span></h2>
         <div id="modal-body" class="modal-body">
             <div class="info">Загрузка...</div>
         </div>

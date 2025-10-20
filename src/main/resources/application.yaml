@@ -5,9 +5,9 @@ ktor:
   deployment:
     port: 8080
 postgres:
-  url: "jdbc:postgresql://localhost:5432/utair-test"
+  url: "jdbc:postgresql://localhost:5432/utair1"
   user: postgres
-  password: 123
+  password: $DB_PASSWORD
 task:
   default:
     limit: 100

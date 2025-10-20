@@ -14,13 +14,11 @@ const TYPE_MAP = {
 // Перевод полей для модалки (учтены синонимы из БД)
 const FIELD_LABELS = {
     id: 'ID',
-    ext_number: 'Внешний номер',
     number_journal: 'Номер журнала',
     type: 'Тип',
     priority: 'Приоритет',
-    name_type: 'Наименование типа',
+    message: 'Работа',
     location_repair: 'Место ремонта',
-    lokation_repair: 'Место ремонта',
     count: 'Количество',
     drawing_number: 'Номер чертежа',
     page_count: 'Кол-во страниц',
@@ -42,7 +40,6 @@ const FIELD_LABELS = {
     photo_3: 'Фото 3',
     comment_shift: 'Комментарий смены',
     plan_complete_date: 'План. дата выполнения',
-    plan_complet_date: 'План. дата выполнения',
     category_change: 'Категория изменения',
     amos_order_number: 'Номер заказа AMOS',
     department_ogm: 'Отдел ОГМ'
@@ -59,7 +56,7 @@ const toggleFiltersBtn = document.getElementById('toggle-filters');
 const modal = document.getElementById('modal');
 const modalBackdrop = document.getElementById('modal-backdrop');
 const modalClose = document.getElementById('modal-close');
-const modalTitleExt = document.getElementById('modal-title-ext');
+const modalTitleExt = document.getElementById('modal-title-id');
 const modalBody = document.getElementById('modal-body');
 
 function getFilters() {
@@ -172,9 +169,9 @@ function createRequestCard(task, isUrgent = false) {
 
     // Поля
     const numberJournal = task.number_journal || task.ext_number?.toString() || '—';
-    const nameType = task.name_type || '';
+    const message = task.message || '';
     const comment = task.comment && task.comment !== 'Отсутствует' ? ` (${task.comment})` : '';
-    const description = `${nameType}${comment}`.trim();
+    const description = `${message}${comment}`.trim();
     const location = task.location_repair || '—';
     const fullName = task.full_name || '—';
     const planDate = isUrgent ? 'новая' : formatDateYMDToRu(task.plan_complete_date || null);
@@ -182,7 +179,7 @@ function createRequestCard(task, isUrgent = false) {
     // Карточка
     const card = document.createElement('div');
     card.className = `request-card ${priorityClass}${isUrgent ? ' urgent' : ''}`;
-    card.dataset.extNumber = task.ext_number;
+    card.dataset.id = task.id;
 
     // Номер заявки (левый столбец)
     const colNumber = document.createElement('div');
@@ -303,19 +300,18 @@ async function loadTasks() {
         }
         const data = await res.json();
 
-        // Новые запросы
-        const url1 = buildQuery({
-            priority: ["Высокий"],
-            status: "В обработке",
-            type: "Ремонт",
-            date_start: null,
-            date_end: null,
-            plan_date_type: "all",
-            limit: '100',
-            sort_asc: "false"
-        })
         let all_data = [...data];
         if (filters.status === 'В работе') {
+            const url1 = buildQuery({
+                priority: ["Высокий"],
+                status: "В обработке",
+                type: "Ремонт",
+                date_start: null,
+                date_end: null,
+                plan_date_type: "all",
+                limit: '100',
+                sort_asc: "false"
+            })
             const res1 = await fetch(url1, {method: 'GET'});
             if (!res1.ok) {
                 const text1 = await res1.text();
@@ -324,7 +320,6 @@ async function loadTasks() {
             const data1 = await res1.json();
             all_data = [...data, ...data1];
         }
-        //
         renderTasks(all_data);
     } catch (e) {
         console.error(e);
@@ -353,15 +348,15 @@ function initFiltersToggle() {
 function initRequestsClick() {
     requestsContainer.addEventListener('click', async (e) => {
         const card = e.target.closest('.request-card');
-        if (!card || !card.dataset.extNumber) return;
+        if (!card || !card.dataset.id) return;
 
-        const ext = card.dataset.extNumber;
+        const id = card.dataset.id;
         openModal();
-        modalTitleExt.textContent = `#${ext}`;
+        modalTitleExt.textContent = `#${id}`;
         modalBody.innerHTML = `<div class="info">Загрузка...</div>`;
 
         try {
-            const res = await fetch(`/api/task?ext_number=${encodeURIComponent(ext)}`);
+            const res = await fetch(`/api/task?ext_number=${encodeURIComponent(id)}`);
             if (!res.ok) {
                 const text = await res.text();
                 throw new Error(text || `Ошибка запроса: ${res.status}`);
@@ -380,13 +375,13 @@ function renderModalDetails(task) {
 
     // Порядок показа: основные поля в начале
     const preferredOrder = [
-        'ext_number', 'number_journal', 'status', 'type', 'priority', 'name_type', 'comment',
-        'location_repair', 'lokation_repair', 'full_name', 'plan_complete_date', 'plan_complet_date',
+        'id', 'number_journal', 'status', 'type', 'priority', 'message', 'comment',
+        'location_repair', 'full_name', 'plan_complete_date',
         'application_date', 'date_ready', 'closing_date',
         'count', 'drawing_number', 'page_count', 'division', 'tg_id', 'code_users', 'email', 'phone',
         'comment_ready', 'comments_closing', 'comment_shift',
         'category_change', 'amos_order_number', 'department_ogm',
-        'photo_1', 'photo_2', 'photo_3', 'id'
+        'photo_1', 'photo_2', 'photo_3'
     ];
 
     const seen = new Set();
@@ -418,6 +413,7 @@ function renderModalDetails(task) {
 
     // добить оставшиеся ключи
     Object.keys(task).forEach(k => pushField(k));
+
 
     modalBody.innerHTML = `<div class="details-grid">${rows.join('')}</div>`;
 }
