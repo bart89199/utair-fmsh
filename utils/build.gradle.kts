@@ -1,0 +1,30 @@
+val postgres_version: String by project
+val exposed_version: String by project
+
+plugins {
+    kotlin("jvm")
+}
+
+group = "ru.fmsh"
+version = "0.0.1"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation(kotlin("test"))
+    implementation("org.postgresql:postgresql:${postgres_version}")
+    implementation("org.jetbrains.exposed:exposed-core:${exposed_version}")
+    implementation("org.jetbrains.exposed:exposed-jdbc:${exposed_version}")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:${exposed_version}")
+    implementation("org.jetbrains.exposed:exposed-json:${exposed_version}")
+    implementation("org.jetbrains.exposed:exposed-dao:${exposed_version}")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+kotlin {
+    jvmToolchain(20)
+}
