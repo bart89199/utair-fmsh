@@ -8,13 +8,9 @@ import kotlinx.datetime.format.char
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.kotlin.datetime.date
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object TaskTable : IntIdTable("tasks") {
@@ -163,31 +159,14 @@ object TaskTableOld : Table("query") {
     val innerId = text("id")
 }
 
-val TasksInWorkIds = listOf(
-    1586,
-    1587,
-    1595,
-    1614,
-    1619,
-    1639,
-    1681,
-    1688,
-    1732,
-    1723,
-    1738,
-    1740,
-    1746,
-    1756,
-    1762,
-    1785,
-    1774,
-    1795,
-    1792,
-    1794,
-    1796
-)
-
-val NewTasksIds = listOf(1797, 1798, 1799, 1800, 1801, 1802, 1803, 1804, 1805, 1806, 1807, 1808, 1809)
+//val TasksInWorkIds = listOf(
+//    1688,
+//    1586,
+//    1774,
+//    1587
+//)
+//
+//val NewTasksIds = listOf(1797, 1798, 1799, 1800, 1801, 1802, 1803, 1804, 1805, 1806, 1807, 1808, 1809)
 
 val dateFormat = LocalDate.Format { dayOfMonth(); char('.'); monthNumber(); char('.'); year() }
 val timeFormat = LocalTime.Format {
@@ -197,27 +176,29 @@ val timeFormat = LocalTime.Format {
 }
 val dateTimeFormat = LocalDateTime.Format { date(dateFormat); char(' '); time(timeFormat) }
 
-fun String.toDateTime() = LocalDateTime.parse(this.replace(Regex(" (?<h>\\d):"), " 0$1:"), dateTimeFormat)
+fun String.toDateTime() = LocalDateTime.parse(
+    this.replace(Regex(" (?<h>\\d):"), " 0$1:").replace(" :", ":").replace(": ", ":"),
+    dateTimeFormat
+)
+
 fun String.toDate() = LocalDate.parse(this, dateFormat)
 fun main() {
-    print("Enter old db name: ")
-    val oldDBName = "utair-real"
-    print("Enter new db name: ")
-    val newDBName = "utair1"
-//    print("Enter old db user('postgres' default): ")
-    val oldDBUser = "postgres"
-//    print("Enter old db password(DB_PASSWORD from environment default): ")
-    val oldDBPassword = System.getenv("DB_PASSWORD")
-//    print("Enter new db user('postgres' default): ")
-    val newDBUser = "postgres"
-//    print("Enter new db password(DB_PASSWORD from environment default): ")
-    val newDBPassword = System.getenv("DB_PASSWORD")
-    val oldDB =
-        Database.connect("jdbc:postgresql://localhost:5432/$oldDBName", user = oldDBUser, password = oldDBPassword)
-    val newDB =
-        Database.connect("jdbc:postgresql://localhost:5432/$newDBName", user = newDBUser, password = newDBPassword)
+    print("Enter old db name(default: utair-real): ")
+    val oldDBName = readlnOrNull().let { if (it.isNullOrEmpty()) "utair-real" else it }
+    print("Enter new db name(it can be same db as the old, default: utair1): ")
+    val newDBName = readlnOrNull().let { if (it.isNullOrEmpty()) "utair1" else it }
+    print("Enter old db user(default: postgres): ")
+    val oldDBUser = readlnOrNull().let { if (it.isNullOrEmpty()) "postgres" else it }
+    print("Enter new db user(default: old db user): ")
+    val newDBUser = readlnOrNull().let { if (it.isNullOrEmpty()) oldDBUser else it }
+    print("Enter old db password(default: system environment variable DB_PASSWORD): ")
+    val oldDBPassword = readlnOrNull().let { if (it.isNullOrEmpty()) System.getenv("DB_PASSWORD") else it }
+    print("Enter new db password(default: old db password): ")
+    val newDBPassword = readlnOrNull().let { if (it.isNullOrEmpty()) oldDBPassword else it }
+    val oldDB = Database.connect("jdbc:postgresql://localhost:5432/$oldDBName", user = oldDBUser, password = oldDBPassword)
+    val newDB = Database.connect("jdbc:postgresql://localhost:5432/$newDBName", user = newDBUser, password = newDBPassword)
 
-    val broken = mutableListOf<Int>()
+    val broken = mutableListOf<Pair<Int, Throwable>>()
     val tasks = mutableListOf<Task>()
 
     transaction(db = newDB) {
@@ -227,16 +208,17 @@ fun main() {
     transaction(db = oldDB) {
         TaskTableOld.selectAll().forEach { old ->
             val id = old[TaskTableOld.extNumber].toInt()
-            val status = when (id) {
-                in TasksInWorkIds -> "В работе"
-                in NewTasksIds -> "В обработке"
-                else -> "Закрыта"
-            }
+            val journalNumber = old[TaskTableOld.journalNumber] ?: "-"
+//            val status = when (id) {
+//                in TasksInWorkIds -> "В работе"
+//                in NewTasksIds -> "В обработке"
+//                else -> "Закрыта"
+//            }
 
             try {
                 val task = Task(
                     id = id,
-                    journalNumber = old[TaskTableOld.journalNumber] ?: "-",
+                    journalNumber = journalNumber,
                     type = old[TaskTableOld.type],
                     priority = old[TaskTableOld.priority].replace("\uD83D\uDFE2 ", "").replace("\uD83D\uDD34 ", ""),
                     message = old[TaskTableOld.nameType],
@@ -250,7 +232,7 @@ fun main() {
                     userCode = old[TaskTableOld.userCode],
                     email = old[TaskTableOld.email],
                     phone = old[TaskTableOld.phone],
-                    status = status,
+                    status = old[TaskTableOld.status],
                     comment = old[TaskTableOld.comment]?.let { if (it == "Отсутствует" || it == "-") null else it },
                     applicationDate = old[TaskTableOld.applicationDate].toDateTime(),
                     commentReady = old[TaskTableOld.commentReady],
@@ -269,21 +251,25 @@ fun main() {
                 tasks.add(task)
             } catch (e: Throwable) {
                 println("Problems with ext_number: $id")
-                e.printStackTrace()
-                broken.add(id)
+                broken.add(id to e)
             }
 
 
         }
     }
     if (broken.isNotEmpty()) {
-        Thread.sleep(2000)
-        println("Problem ext_number`s: $broken")
-        print("Do you want to continue?(y or n): ")
-        var ans = readln()
-        while (ans != "y" && ans != "n") {
+        println()
+        println("------------------------------------------")
+        println("Problem ext_number`s:")
+        for ((id, e) in broken) {
+            println("$id - ${e.message}")
+        }
+        println("------------------------------------------")
+        println("Do you want to continue?(y or n): ")
+        var ans = readlnOrNull()
+        while (ans != "y" && ans != "n" && ans != null) {
             print("Try again: ")
-            ans = readln()
+            ans = readlnOrNull()
         }
         if (ans == "n") {
             println("Stoping...")
